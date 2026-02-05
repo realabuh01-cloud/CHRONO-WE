@@ -88,11 +88,7 @@
       body { font-size: 11px; }
       video { max-width: 240px; }
     }
-    .grid{
-      background-color: red;
-      width: 25%;
-      
-    }
+   
   </style>
 </head>
 <body>
@@ -155,11 +151,11 @@
       ctx.fillStyle = 'red';
       ctx.fillText(`${p.class} (${confidence}%)`, p.bbox[0], p.bbox[1] - 6);
 
-      result.innerHTML.style: display=flex;
-        <div class="grid";><b>Object:</b> ${p.class}</div>
-        <div class="grid";><b>Confidence:</b> ${confidence}%</div>
-        <div class="grid";><b>Preservation Box:</b> ${storage}</div>
-       <div class="grid";> <b>Recommended Temp:</b> ${tempRange}</div>
+      result.innerHTML`
+        <b>Object:</b> ${p.class}<br>
+        <b>Confidence:</b> ${confidence}%<br>
+        <b>Preservation Box:</b> ${storage}<br>
+       <b>Recommended Temp:</b> ${tempRange}<br>
       `;
     } else {
       result.innerText = 'No object detected';
