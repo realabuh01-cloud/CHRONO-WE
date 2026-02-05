@@ -88,7 +88,6 @@
       body { font-size: 11px; }
       video { max-width: 240px; }
     }
-   
   </style>
 </head>
 <body>
@@ -151,11 +150,11 @@
       ctx.fillStyle = 'red';
       ctx.fillText(`${p.class} (${confidence}%)`, p.bbox[0], p.bbox[1] - 6);
 
-      result.innerHTML`
+      result.innerHTML = `
         <b>Object:</b> ${p.class}<br>
         <b>Confidence:</b> ${confidence}%<br>
         <b>Preservation Box:</b> ${storage}<br>
-       <b>Recommended Temp:</b> ${tempRange}<br>
+        <b>Recommended Temp:</b> ${tempRange}
       `;
     } else {
       result.innerText = 'No object detected';
