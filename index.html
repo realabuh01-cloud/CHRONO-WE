@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Archaeo AI – Preservation Detector</title>
+
+  <!-- TensorFlow.js & COCO-SSD -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.15.0/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+
+  <style>
+    :root {
+      --main: #5a0f1a;
+      --bg: hwb(0 86% 14%);
+      --card: #fc4829;
+    }
+
+    * { box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { margin: 0; background: var(--bg);
+    width: 100%;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: var(--main);
+      color: white;
+      padding: .8rem;
+      text-align: center;
+      font-size: 1rem;
+    }
+
+
+    /* CAMERA */
+    .camera {
+      position: relative;
+      padding: .5rem;
+      text-align: center;
+      flex: 1;
+    }
+
+    video {
+      width: 100%;
+      max-width: 380px;
+      border-radius: 14px;
+    }
+
+    canvas {
+      position: absolute;
+      top: .5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      border-radius: 10px;
+    }
+
+    .info {
+      margin-top: .5rem;
+      background: white;
+      padding: .6rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,.1);
+      font-size: .85rem;
+    }
+
+    button {
+      margin-top: .6rem;
+      padding: .6rem 1rem;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(270deg, maroon, #8b0000, #b22222, maroon);
+      background-size: 600% 600%;
+      color: white;
+      animation: move 4s ease infinite;
+    }
+
+    @keyframes move {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @media (max-width: 280px) {
+      body { font-size: 11px; }
+      video { max-width: 240px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+  <header>CHRONO'S AI</header>
+
+  <!-- SENSOR DASHBOARD -->
+
+  <!-- CAMERA -->
+  <div class="camera">
+    <video id="video" autoplay playsinline></video>
+    <canvas id="canvas"></canvas>
+    <br />
+    <button onclick="startCamera()">Start Live Detection</button>
+
+    <div class="info" id="result">No object detected</div>
+  </div>
+</div>
+
+<script>
+  let model = null;
+
+  /* CAMERA + DETECTION */
+  async function startCamera() {
+    model = model || await cocoSsd.load();
+
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'environment' } },
+      audio: false
+    });
+
+    video.srcObject = stream;
+    await video.play();
+    requestAnimationFrame(detect);
+  }
+
+  async function detect() {
+    if (!model || video.readyState !== 4) {
+      requestAnimationFrame(detect);
+      return;
+    }
+
+    const preds = await model.detect(video);
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (preds.length > 0) {
+      const p = preds[0];
+      const confidence = Math.round(p.score * 100);
+      const storage = p.class === 'bottle' || p.class === 'cup' ? 'Cold Chamber' : 'Hot Chamber';
+      const tempRange = storage === 'Cold Box' ? '2°C – 8°C' : '18°C – 25°C';
+
+      ctx.strokeStyle = 'red';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(...p.bbox);
+      ctx.fillStyle = 'red';
+      ctx.fillText(`${p.class} (${confidence}%)`, p.bbox[0], p.bbox[1] - 6);
+
+      result.innerHTML = `
+        <b>Object:</b> ${p.class}<br>
+        <b>Confidence:</b> ${confidence}%<br>
+        <b>Preservation Box:</b> ${storage}<br>
+        <b>Recommended Temp:</b> ${tempRange}
+      `;
+    } else {
+      result.innerText = 'No object detected';
+    }
+
+    requestAnimationFrame(detect);
+  }
+
+  
+</script>
+</body>
+</html>
