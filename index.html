@@ -88,6 +88,10 @@
       body { font-size: 11px; }
       video { max-width: 240px; }
     }
+    .grid{
+      background-color: red;
+      width: 25%;
+    }
   </style>
 </head>
 <body>
@@ -152,9 +156,9 @@
 
       result.innerHTML = `
         <b>Object:</b> ${p.class}<br>
-        <b>Confidence:</b> ${confidence}%<br>
-        <b>Preservation Box:</b> ${storage}<br>
-        <b>Recommended Temp:</b> ${tempRange}
+        <div class="grid"><b>Confidence:</b> ${confidence}%<br></div>
+        <div class="grid"><b>Preservation Box:</b> ${storage}<br></div>
+       <div class="grid"> <b>Recommended Temp:</b> ${tempRange}</div>
       `;
     } else {
       result.innerText = 'No object detected';
